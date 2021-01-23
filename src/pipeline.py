@@ -21,12 +21,42 @@ class GetRosters(Task):
     # where `team_id` is a number representing the team, e.g. `20` for CGY
 
     def output(self):
-        # write to file
-        pass
+        import os
+
+        file_location = (f'~/Temp/luigi/rosters-json.pckl')
+        return LocalTarget(os.path.expanduser(file_location), format=Nop)
 
     def run(self):
+        import requests
+        import pickle
+
+        self.output().makedirs()
+
+        # get team IDs
+        teams_url = 'https://statsapi.web.nhl.com/api/v1/teams'
+
+        r = requests.get(teams_url)
+        r.raise_for_status()
+        data = r.json()['teams']
+
         # get the roster for every team using the NHL API
-        pass
+        teams = [team['id'] for team in data]
+        roster_url_template = 'https://statsapi.web.nhl.com/api/v1/teams/{}'
+        params = {'expand': 'team.roster'}
+
+        rosters = []
+
+        for team in teams:
+            roster_url = roster_url_template.format(team)
+
+            r = requests.get(roster_url, params=params)
+            r.raise_for_status()
+            data = r.json()
+            roster = data['teams'][0]['roster']['roster']
+            rosters.append(roster)
+
+        with self.output().temporary_path() as temp_output_path:
+            pickle.dump(rosters, temp_output_path)
 
 
 @requires(GetRosters)
