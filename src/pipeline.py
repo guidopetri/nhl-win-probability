@@ -16,6 +16,10 @@ from pipeline_import.postgres_templates import HashableDict
 
 class GetRosters(Task):
 
+    # use NHL API endpoint:
+    # https://statsapi.web.nhl.com/api/v1/teams/{{team_id}}?expand=team.roster
+    # where `team_id` is a number representing the team, e.g. `20` for CGY
+
     def output(self):
         # write to file
         pass
@@ -27,6 +31,11 @@ class GetRosters(Task):
 
 @requires(GetRosters)
 class GetGameLogs(Task):
+
+    # use NHL API endpoint:
+    # https://statsapi.web.nhl.com/api/v1/people/{{player_id}}/stats?stats=gameLog
+    # where `player_id` is a number representing the player (in our case
+    # goalies), e.g. `8474593` for Jacob Markstrom
 
     def output(self):
         # write to file
