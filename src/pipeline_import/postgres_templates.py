@@ -91,7 +91,63 @@ class TransactionFactTable(PostgresTable):
 
 class DimensionTable(PostgresTable):
     # copy a dimension table that slowly changes, *not* a transaction table
-    pass
+
+    table = Parameter(default='')
+    fn = TaskParameter(default=Task)
+    columns = ListParameter(default=[])
+    id_cols = ListParameter(default=[])
+    merge_cols = DictParameter(default={})
+
+    column_separator = '\t'
+
+    def requires(self):
+        return self.clone(self.fn)
+
+    def rows(self):
+        from pandas import read_pickle, DataFrame, merge, concat
+
+        connection = self.output().connect()
+        cursor = connection.cursor()
+
+        sql = f"""
+               SELECT {', '.join(['id'] + self.columns)} FROM {self.table};
+               """
+
+        cursor.execute(sql)
+        results = cursor.fetchall()
+
+        current_df = DataFrame(results, columns=['id'] + self.columns)
+
+        with self.input().open('r') as f:
+            df = read_pickle(f, compression=None)
+
+        if not df.empty:
+
+            # get list of dim values that are already in the database, but have
+            # changed their attributes
+            merged = merge(current_df, df, on=self.columns, how='inner')
+            current_df = concat([current_df, merged], axis=0)
+            is_duplicate = current_df.duplicated(keep=False)
+
+            # duplicates = current_df[is_duplicate]
+            new = current_df[~is_duplicate]
+
+            to_delete = new['id'].tolist()
+            to_copy = df[df[list(self.id_cols)]
+                         .isin(new[list(self.id_cols)].to_dict(orient='list'))
+                         .all(axis=1)]
+
+            to_copy = to_copy[list(self.columns)]
+
+        delete_sql = f"""
+                      DELETE FROM {self.table}
+                      WHERE id IN ({', '.join(to_delete)});
+                      """
+
+        cursor.execute(delete_sql)
+
+        for index, line in to_copy.iterrows():  # returns (index, Series) tuple
+            yield line.values.tolist()
 
 
 class CopyWrapper(Task):
