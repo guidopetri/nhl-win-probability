@@ -110,13 +110,14 @@ class DimensionTable(PostgresTable):
         cursor = connection.cursor()
 
         sql = f"""
-               SELECT {', '.join(['id'] + self.columns)} FROM {self.table};
+               SELECT {', '.join(['id'] + list(self.columns))}
+               FROM {self.table};
                """
 
         cursor.execute(sql)
         results = cursor.fetchall()
 
-        current_df = DataFrame(results, columns=['id'] + self.columns)
+        current_df = DataFrame(results, columns=['id'] + list(self.columns))
 
         with self.input().open('r') as f:
             df = read_pickle(f, compression=None)
