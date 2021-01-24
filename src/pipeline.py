@@ -339,7 +339,7 @@ class CleanGameLogs(Task):
                                     'is_overtime_game',
                                     'overtimes',
                                     'is_won_game',
-                                    ],
+                                    ]
 
         with self.output().temporary_path() as temp_output_path:
             cleaned_gamelogs.to_pickle(temp_output_path, compression=None)
