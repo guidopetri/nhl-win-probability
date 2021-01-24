@@ -280,44 +280,45 @@ class CleanGameLogs(Task):
 
         cleaned_gamelogs = []
 
-        for goalie_id, gamelog in gamelogs.items():
-            game_id = gamelog['game']['gamePk']
-            game_date = gamelog['date']
-            season = gamelog['season']
-            time_on_ice = gamelog['stat']['timeOnIce']
-            goals_against = gamelog['stat']['goalsAgainst']
-            goalie_team = gamelog['team']['id']
-            opponent = gamelog['opponent']['id']
-            even_strength_shots = gamelog['stat']['evenShots']
-            even_strength_saves = gamelog['stat']['evenSaves']
-            short_shots = gamelog['stat']['shortHandedShots']
-            short_saves = gamelog['stat']['shortHandedSaves']
-            power_shots = gamelog['stat']['powerPlayShots']
-            power_saves = gamelog['stat']['powerPlaySaves']
-            is_home_game = gamelog['isHome']
-            is_overtime_game = gamelog['isOT']
-            overtimes = gamelog['stat']['ot']
-            is_won_game = gamelog['isWin']
+        for goalie_id, games in gamelogs.items():
+            for game in games:
+                game_id = game['game']['gamePk']
+                game_date = game['date']
+                season = game['season']
+                time_on_ice = game['stat']['timeOnIce']
+                goals_against = game['stat']['goalsAgainst']
+                goalie_team = game['team']['id']
+                opponent = game['opponent']['id']
+                even_strength_shots = game['stat']['evenShots']
+                even_strength_saves = game['stat']['evenSaves']
+                short_shots = game['stat']['shortHandedShots']
+                short_saves = game['stat']['shortHandedSaves']
+                power_shots = game['stat']['powerPlayShots']
+                power_saves = game['stat']['powerPlaySaves']
+                is_home_game = game['isHome']
+                is_overtime_game = game['isOT']
+                overtimes = game['stat']['ot']
+                is_won_game = game['isWin']
 
-            cleaned_gamelogs.append((game_id,
-                                     game_date,
-                                     season,
-                                     goalie_id,
-                                     time_on_ice,
-                                     goals_against,
-                                     goalie_team,
-                                     opponent,
-                                     even_strength_shots,
-                                     even_strength_saves,
-                                     short_shots,
-                                     short_saves,
-                                     power_shots,
-                                     power_saves,
-                                     is_home_game,
-                                     is_overtime_game,
-                                     overtimes,
-                                     is_won_game,
-                                     ))
+                cleaned_gamelogs.append((game_id,
+                                         game_date,
+                                         season,
+                                         goalie_id,
+                                         time_on_ice,
+                                         goals_against,
+                                         goalie_team,
+                                         opponent,
+                                         even_strength_shots,
+                                         even_strength_saves,
+                                         short_shots,
+                                         short_saves,
+                                         power_shots,
+                                         power_saves,
+                                         is_home_game,
+                                         is_overtime_game,
+                                         overtimes,
+                                         is_won_game,
+                                         ))
 
         cleaned_gamelogs = DataFrame(cleaned_gamelogs)
         cleaned_gamelogs.columns = ['game_id',
