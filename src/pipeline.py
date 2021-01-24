@@ -35,8 +35,8 @@ class GetTeams(Task):
         r.raise_for_status()
         data = r.json()['teams']
 
-        with self.output().temporary_path() as temp_output_path:
-            pickle.dump(data, temp_output_path)
+        with self.output().open('w') as f:
+            pickle.dump(data, f)
 
 
 @requires(GetTeams)
@@ -80,8 +80,8 @@ class GetRosters(Task):
             roster = data['teams'][0]['roster']['roster']
             rosters[team_id] = roster
 
-        with self.output().temporary_path() as temp_output_path:
-            pickle.dump(rosters, temp_output_path)
+        with self.output().open('w') as f:
+            pickle.dump(rosters, f)
 
 
 @requires(GetRosters)
@@ -107,8 +107,8 @@ class GetGoalies(Task):
                    if player['position']['code'] == 'G'
                    ]
 
-        with self.output().temporary_path() as temp_output_path:
-            pickle.dump(goalies, temp_output_path)
+        with self.output().open('w') as f:
+            pickle.dump(goalies, f)
 
 
 @requires(GetGoalies)
@@ -151,8 +151,8 @@ class GetGameLogs(Task):
             stats = data['stats'][0]['splits']
             goalie_stats[goalie_id] = stats
 
-        with self.output().temporary_path() as temp_output_path:
-            pickle.dump(goalie_stats, temp_output_path)
+        with self.output().open('w') as f:
+            pickle.dump(goalie_stats, f)
 
 
 @requires(GetTeams)
