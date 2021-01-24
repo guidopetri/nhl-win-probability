@@ -249,7 +249,8 @@ class CleanGoalies(Task):
         with self.input().open('r') as f:
             goalies = pickle.load(f)
 
-        cleaned_goalies = [(goalie['id'], goalie['name'])
+        cleaned_goalies = [(goalie['person']['id'],
+                            goalie['person']['fullName'])
                            for goalie in goalies]
 
         cleaned_goalies = DataFrame(cleaned_goalies)
